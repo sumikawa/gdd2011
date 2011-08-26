@@ -21,8 +21,6 @@ $| = 1;
 my $width;
 my $height;
 
-my $min = 100000;
-my $minpath = "";
 my %done;
 my $orig = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0";
 my $good;
@@ -35,10 +33,10 @@ while (<FH>) {
 	print "\n";
 	next;
     }
-    if (not m/=/) {
-	print "\n";
-	next;
-    }
+#    if (not m/=/) {
+#	print "\n";
+#	next;
+#    }
     chomp;
     my $start = $_;
     $start =~ s/3,3,//;
@@ -52,10 +50,7 @@ while (<FH>) {
     $done{$start} = 1;
     $width = 3;
     $height = 3;
-    $minpath = "";
-    $min = 100000;
     srch($start, 0, "");
-    print ("$minpath\n");
     %done = {};
 }
 
@@ -110,91 +105,60 @@ sub d {
 }
 
 sub srch {
-    (my $current, my $num, my $path) = @_;
-    # ゴールしたか
-    #   YES
-    #     探索回数を確認して、最短なら更新
-    # L動くか
-    #   YES
-    #     動いた先は過去にあった局面か
-    #       YES
-    #         探索終了
-    #       NO
-    #         再帰呼出
-    #   NO
-    #         探索終了
-    # R動くか
-    # U動くか
-    # D動くか
-    # 終了
-    if ($num > $min) {
-	return
-    }
+    my @srchs = @_;
 
-    my $next = "";
-#    print "$current\n";
-#    print "$current: $path\n";
-    if ($current eq $good) {
-#	print "good = $current\n";
-	if ($num < $min) {
-	    $minpath = $path;	
-	    $min = $num;
-#	    print "  this is current minpath: $num, $minpath\n";
+    while (@srchs) {
+	my $current = shift(@srchs);
+	my $num = shift(@srchs);
+	my $path  = shift(@srchs);
+
+	my $next = "";
+#	print "$current: $num, $path\n";
+	if ($current eq $good) {
+	    print "$path\n";
+	    return;
 	}
-	$done{$current} = 0;
-	return;
-    }
 
-    $next = r($current);
-    if ($next eq "") {
-#	print "  cannot R: $next\n";
-    } else {
-	if (exists($done{$next}) && ($done{$next} == 1)) {
-#	    print "  R exist: $next\n";
+	$next = r($current);
+	if ($next eq "") {
 	} else {
-	    $done{$next} = 1;
-	    srch($next, $num + 1, $path . "R");
+	    if (exists($done{$next})) {
+	    } else {
+		$done{$next} = 1;
+		push(@srchs, ($next, $num + 1, $path . "R"));
+	    }
 	}
-    }
 
-    $next = l($current);
-    if ($next eq "") {
-#	print "  cannot L: $next\n";
-    } else {
-	if (exists($done{$next}) && ($done{$next} == 1)) {
-#	    print "  L exist: $next\n";
+	$next = l($current);
+	if ($next eq "") {
 	} else {
-	    $done{$next} = 1;
-	    srch($next, $num + 1, $path . "L");
+	    if (exists($done{$next})) {
+	    } else {
+		$done{$next} = 1;
+		push(@srchs, ($next, $num + 1, $path . "L"));
+	    }
 	}
-    }
 
-    $next = u($current);
-    if ($next eq "") {
-#	print "  cannot U: $next\n";
-    } else {
-	if (exists($done{$next}) && ($done{$next} == 1)) {
-#	    print "  U exist: $next\n";
+	$next = u($current);
+	if ($next eq "") {
 	} else {
-	    $done{$next} = 1;
-	    srch($next, $num + 1, $path . "U");
+	    if (exists($done{$next})) {
+	    } else {
+		$done{$next} = 1;
+		push(@srchs, ($next, $num + 1, $path . "U"));
+	    }
 	}
-    }
 
-    $next = d($current);
-    if ($next eq "") {
-#	print "  cannot D: $next\n";
-    } else {
-	if (exists($done{$next}) && ($done{$next} == 1)) {
-#	    print "  D exist: $next\n";
+	$next = d($current);
+	if ($next eq "") {
 	} else {
-	    $done{$next} = 1;
-	    srch($next, $num + 1, $path . "D");
+	    if (exists($done{$next})) {
+	    } else {
+		$done{$next} = 1;
+		push(@srchs, ($next, $num + 1, $path . "D"));
+	    }
 	}
     }
-
-#    print "  * exit\n";
-    return;
 }
 
 sub test {
