@@ -33,25 +33,20 @@ while (<FH>) {
 	print "\n";
 	next;
     }
-#    if (not m/=/) {
-#	print "\n";
-#	next;
-#    }
     chomp;
     my $start = $_;
-    $start =~ s/3,3,//;
+    $start =~ s/^(\d),(\d),//;
+    $width = $1;
+    $height = $2;
     $good = substr($orig, 0, length($start) - 1) . "0";
     for (my $i = 0; $i < length($start); $i++) {
 	if (substr($start, $i, 1) eq "=") {
 	    $good = substr($good, 0, $i) . "=" . substr($good, $i + 1, length($start) - $i);
 	}
     }
-#    print "$start, $good\n";
+    %done = ();
     $done{$start} = 1;
-    $width = 3;
-    $height = 3;
     srch($start, 0, "");
-    %done = {};
 }
 
 
@@ -124,7 +119,7 @@ sub srch {
 	} else {
 	    if (exists($done{$next})) {
 	    } else {
-		$done{$next} = 1;
+		$done{$next}++;
 		push(@srchs, ($next, $num + 1, $path . "R"));
 	    }
 	}
@@ -134,7 +129,7 @@ sub srch {
 	} else {
 	    if (exists($done{$next})) {
 	    } else {
-		$done{$next} = 1;
+		$done{$next}++;
 		push(@srchs, ($next, $num + 1, $path . "L"));
 	    }
 	}
@@ -144,7 +139,7 @@ sub srch {
 	} else {
 	    if (exists($done{$next})) {
 	    } else {
-		$done{$next} = 1;
+		$done{$next}++;
 		push(@srchs, ($next, $num + 1, $path . "U"));
 	    }
 	}
@@ -154,7 +149,7 @@ sub srch {
 	} else {
 	    if (exists($done{$next})) {
 	    } else {
-		$done{$next} = 1;
+		$done{$next}++;
 		push(@srchs, ($next, $num + 1, $path . "D"));
 	    }
 	}
