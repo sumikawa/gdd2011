@@ -62,10 +62,7 @@ sub d {
 }
 
 sub srch {
-    # $_[0] = $current;
-    # $_[1] = $num;
-    # $_[2] = $path;
-    
+    ($current, $num, $path) = @_;
     # 終了したか
     #   YES
     #     探索回数を確認して、最短なら更新
@@ -82,60 +79,59 @@ sub srch {
     # R動くか
     # U動くか
     # D動くか
-    print $_[0] . ": ";
-    print $_[2] . "\n";
-    if ($_[0] eq $good) {
-	print "good = $_[0]\n";
-	if ($_[1] < $min) {
-	    $minpath = $_[2];	
-	    print "minpath = $minpath\n";
+    print "$current: $path";
+    if ($current eq $good) {
+	print "  good = $current\n";
+	if ($num < $min) {
+	    $minpath = $path;	
+	    print "  minpath = $minpath\n";
 	}
 	return;
     }
     if (l($current) == 0) {
-	if (exists($done{$_[0]})) {
+	if (exists($done{$current})) {
 	    return;
 	} else {
-	    $done{$_[0]} = 1;
-	    $_[1]++;
-	    $_[2] = $_[2] . "L";
-	    srch($_[0], $_[1], $_[2])
+	    $done{$current} = 1;
+	    $num++;
+	    $path = $path . "L";
+	    srch($current, $num, $path);
 	}
     } else {
 	return;
     }
     if (r($current) == 0) {
-	if (exists($done{$_[0]})) {
+	if (exists($done{$current})) {
 	    return;
 	} else {
-	    $done{$_[0]} = 1;
-	    $_[1]++;
-	    $_[2] = $_[2] . "R";
-	    srch($_[0], $_[1], $_[2])
+	    $done{$current} = 1;
+	    $num++;
+	    $path = $path . "R";
+	    srch($current, $num, $path);
 	}
     } else {
 	return;
     }
     if (u($current) == 0) {
-	if (exists($done{$_[0]})) {
+	if (exists($done{$current})) {
 	    return;
 	} else {
-	    $done{$_[0]} = 1;
-	    $_[1]++;
-	    $_[2] = $_[2] . "U";
-	    srch($_[0], $_[1], $_[2])
+	    $done{$current} = 1;
+	    $num++;
+	    $path = $path . "U";
+	    srch($current, $num, $path);
 	}
     } else {
 	return;
     }
     if (d($current) == 0) {
-	if (exists($done{$_[0]})) {
+	if (exists($done{$current})) {
 	    return;
 	} else {
-	    $done{$_[0]} = 1;
-	    $_[1]++;
-	    $_[2] = $_[2] . "D";
-	    srch($_[0], $_[1], $_[2])
+	    $done{$current} = 1;
+	    $num++;
+	    $path = $path . "D";
+	    srch($current, $num, $path);
 	}
     } else {
 	return;
