@@ -1,72 +1,119 @@
 #!/usr/bin/perl
+use strict;
 
-#$current = "12=E4D9HIF8=GN576LOABMTPKQSR0J";
-#$good    = "12=3456789A=BCDEFGHIJKLMNOPQR0";
+#my $width = 5;
+#my $height = 6;
+#my $start = "12=E4D9HIF8=GN576LOABMTPKQSR0J";
+#my $good  = "12=456789AB=DEFGHIJKLMNOPQRST0";
 
-$current = "168452=30";
-$good    = "123456=70";
+#my $width = 4;
+#my $height = 4;
+#my $start = "32465871FAC0=9BE";
+#my $good  = "123456789ABC=DE0";
 
-$num = 0;
-$min = 100000;
-my %done;
-$path = "";
+#my $width = 3;
+#my $height = 4;
+#my $start = "1327A40=5B96";
+#my $good  = "1234567=89A0";
+
 $| = 1;
 
-$width = 3;
-$height = 3;
+my $width;
+my $height;
 
-sub r {
-    if (index($_[0], "0") % $width != ($width - 1)) {
-	if (not $_[0] =~ m/0=/) {
-	    $reg = '.' x ($width - 2);
-	    $_[0] =~ s/0($reg)/$1 0/;
-	    $_[0] =~ s/ //;
-	    return 0;
+my $min = 100000;
+my $minpath = "";
+my %done;
+my $orig = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0";
+my $good;
+
+open(FH, "quiz.txt");
+my $input = <FH>;
+my $input = <FH>;
+while (<FH>) {
+    if (not m/^3,3,/) {
+	print "\n";
+	next;
+    }
+    if (not m/=/) {
+	print "\n";
+	next;
+    }
+    chomp;
+    my $start = $_;
+    $start =~ s/3,3,//;
+    $good = substr($orig, 0, length($start) - 1) . "0";
+    for (my $i = 0; $i < length($start); $i++) {
+	if (substr($start, $i, 1) eq "=") {
+	    $good = substr($good, 0, $i) . "=" . substr($good, $i + 1, length($start) - $i);
 	}
     }
-    return 1;
+#    print "$start, $good\n";
+    $done{$start} = 1;
+    $width = 3;
+    $height = 3;
+    $minpath = "";
+    $min = 100000;
+    srch($start, 0, "");
+    print ("$minpath\n");
+    %done = {};
+}
+
+
+sub r {
+    (my $cur) = @_;
+    if (index($cur, "0") % $width != ($width - 1)) {
+	if (not $cur =~ m/0=/) {
+	    $cur =~ s/0(.)/$1 0/;
+	    $cur =~ s/ //;
+	    return $cur;
+	}
+    }
+    return "";
 }
 
 sub l {
-    if (index($_[0], "0") % $width != 0) {
-	if (not $_[0] =~ m/=0/) {
-	    $reg = '.' x ($width - 2);
-	    $_[0] =~ s/($reg)0/0$1/;
-	    return 0;
+    (my $cur) = @_;
+    if (index($cur, "0") % $width != 0) {
+	my $reg = '.' x ($width - 2);
+	if (not $cur =~ m/=0/) {
+	    $cur =~ s/(.)0/0$1/;
+	    return $cur;
 	}
     }
-    return 1;
+    return "";
 }
 
 sub u {
-    if (index($_[0], "0") > $width) {
-	$reg = '.' x ($width - 1);
-	if (not $_[0] =~ m/=($reg)0/) {
-	    $_[0] =~ s/(.)($reg)0/0$2$1/;
-	    return 0;
+    (my $cur) = @_;
+    if (index($cur, "0") >= $width) {
+	my $reg = '.' x ($width - 1);
+	if (not $cur =~ m/=($reg)0/) {
+	    $cur =~ s/(.)($reg)0/0$2$1/;
+	    return $cur;
 	}
     }
-    return 1;
+    return "";
 }
 
 sub d {
-    if (length($_[0]) - index($_[0], "0") > $width) {
-	$reg = '.' x ($width - 1);
-	if (not $_[0] =~ m/0($reg)=/) {
-	    $_[0] =~ s/0($reg)(.)/$2$1 0/;
-	    $_[0] =~ s/ //;
-	    return 0;
+    (my $cur) = @_;
+    if (length($cur) - index($cur, "0") > $width) {
+	my $reg = '.' x ($width - 1);
+	if (not $cur =~ m/0($reg)=/) {
+	    $cur =~ s/0($reg)(.)/$2$1 0/;
+	    $cur =~ s/ //;
+	    return $cur;
 	}
     }
-    return 1;
+    return "";
 }
 
 sub srch {
-    ($current, $num, $path) = @_;
-    # 終了したか
+    (my $current, my $num, my $path) = @_;
+    # ゴールしたか
     #   YES
     #     探索回数を確認して、最短なら更新
-    #     ret
     # L動くか
     #   YES
     #     動いた先は過去にあった局面か
@@ -79,131 +126,179 @@ sub srch {
     # R動くか
     # U動くか
     # D動くか
-    print "$current: $path";
+    # 終了
+    if ($num > $min) {
+	return
+    }
+
+    my $next = "";
+#    print "$current\n";
+#    print "$current: $path\n";
     if ($current eq $good) {
-	print "  good = $current\n";
+#	print "good = $current\n";
 	if ($num < $min) {
 	    $minpath = $path;	
-	    print "  minpath = $minpath\n";
+	    $min = $num;
+#	    print "  this is current minpath: $num, $minpath\n";
 	}
+	$done{$current} = 0;
 	return;
     }
-    if (l($current) == 0) {
-	if (exists($done{$current})) {
-	    return;
-	} else {
-	    $done{$current} = 1;
-	    $num++;
-	    $path = $path . "L";
-	    srch($current, $num, $path);
-	}
+
+    $next = r($current);
+    if ($next eq "") {
+#	print "  cannot R: $next\n";
     } else {
-	return;
-    }
-    if (r($current) == 0) {
-	if (exists($done{$current})) {
-	    return;
+	if (exists($done{$next}) && ($done{$next} == 1)) {
+#	    print "  R exist: $next\n";
 	} else {
-	    $done{$current} = 1;
-	    $num++;
-	    $path = $path . "R";
-	    srch($current, $num, $path);
+	    $done{$next} = 1;
+	    srch($next, $num + 1, $path . "R");
 	}
-    } else {
-	return;
     }
-    if (u($current) == 0) {
-	if (exists($done{$current})) {
-	    return;
+
+    $next = l($current);
+    if ($next eq "") {
+#	print "  cannot L: $next\n";
+    } else {
+	if (exists($done{$next}) && ($done{$next} == 1)) {
+#	    print "  L exist: $next\n";
 	} else {
-	    $done{$current} = 1;
-	    $num++;
-	    $path = $path . "U";
-	    srch($current, $num, $path);
+	    $done{$next} = 1;
+	    srch($next, $num + 1, $path . "L");
 	}
-    } else {
-	return;
     }
-    if (d($current) == 0) {
-	if (exists($done{$current})) {
-	    return;
+
+    $next = u($current);
+    if ($next eq "") {
+#	print "  cannot U: $next\n";
+    } else {
+	if (exists($done{$next}) && ($done{$next} == 1)) {
+#	    print "  U exist: $next\n";
 	} else {
-	    $done{$current} = 1;
-	    $num++;
-	    $path = $path . "D";
-	    srch($current, $num, $path);
+	    $done{$next} = 1;
+	    srch($next, $num + 1, $path . "U");
 	}
-    } else {
-	return;
     }
+
+    $next = d($current);
+    if ($next eq "") {
+#	print "  cannot D: $next\n";
+    } else {
+	if (exists($done{$next}) && ($done{$next} == 1)) {
+#	    print "  D exist: $next\n";
+	} else {
+	    $done{$next} = 1;
+	    srch($next, $num + 1, $path . "D");
+	}
+    }
+
+#    print "  * exit\n";
+    return;
 }
 
 sub test {
-    print "\n right\n";
-    $t = "01234=";
-    print "start: $t\n";
-    $ret = r($t);
-    print "ret = $ret, $t\n";
-    $ret = r($t);
-    print "ret = $ret, $t\n";
-    $ret = r($t);
-    print "ret = $ret, $t\n";
+    print "* right\n";
+    my $t = "12=E4D9HIF8=GN576LOABMTPKQSR0J";
+    print "$t\n";
+    $t = r($t);
+    print "$t\n";
+    $t = r($t);
+    print "$t\n";
+    $t = r($t);
+    print "$t\n";
 
-    print "\n left\n";
-    $t = "=12340";
-    print "\nstart: $t\n";
-    $ret = l($t);
-    print "ret = $ret, $t\n";
-    $ret = l($t);
-    print "ret = $ret, $t\n";
-    $ret = l($t);
-    print "ret = $ret, $t\n";
+    print "* left\n";
+    my $t = "12=E4D9HIF8=GN576LOABMTPKQSR0J";
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
 
     $t = "=10234";
-    print "\nstart: $t\n";
-    $ret = l($t);
-    print "ret = $ret, $t\n";
-    $ret = l($t);
-    print "ret = $ret, $t\n";
-    $ret = l($t);
-    print "ret = $ret, $t\n";
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
+    $t = l($t);
+    print "$t\n";
 
-    print "\n up\n";
-    $t = "=12345670";
-    print "\nstart: $t\n";
-    $ret = u($t);
-    print "ret = $ret, $t\n";
-    $ret = u($t);
-    print "ret = $ret, $t\n";
+    print "* up\n";
+    my $t = "12=E4D9HIF8=GN576LOABMTPKQSR0J";
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
 
     $t = "123456780";
-    print "\nstart: $t\n";
-    $ret = u($t);
-    print "ret = $ret, $t\n";
-    $ret = u($t);
-    print "ret = $ret, $t\n";
-    $ret = u($t);
-    print "ret = $ret, $t\n";
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
 
-    print "\n down\n";
-    $t = "012345=67";
-    print "\nstart: $t\n";
-    $ret = d($t);
-    print "ret = $ret, $t\n";
-    $ret = d($t);
-    print "ret = $ret, $t\n";
+    $t = "123456078";
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+    $t = u($t);
+    print "$t\n";
+
+    print "* down\n";
+    my $t = "10=E4D9HIF8=GN576LOABMTPKQSR2J";
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+
+    my $t = "10=E4D9HIF=8GN576LOABMTPKQSR2J";
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
 
     $t = "012345678";
-    print "\nstart: $t\n";
-    $ret = d($t);
-    print "ret = $ret, $t\n";
-    $ret = d($t);
-    print "ret = $ret, $t\n";
-    $ret = d($t);
-    print "ret = $ret, $t\n";
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
+    $t = d($t);
+    print "$t\n";
 }
 
-##$done{$current} = 1;
-srch($current, $num, $path);
-
 #test();
+
