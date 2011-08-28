@@ -29,10 +29,15 @@ open(FH, "quiz.txt");
 my $input = <FH>;
 my $input = <FH>;
 my $count;
+
+my $t1 = (times)[0];
+
 while (<FH>) {
     $count++;
+    last if ($count > 500);
     print STDERR "($count/5000)\r";
-    if (not m/^3,3,|^4,3|^3,4/) {
+#    if (not m/^3,3,|^4,3|^3,4/) {
+    if (not m/^3,3/) {
 	print "\n";
 	next;
     }
@@ -53,13 +58,19 @@ while (<FH>) {
     undef %done;
 }
 
+my $t2 = (times)[0];
+my $t3 = $t2 - $t1;
+print STDERR "$t3 sec\n";
 
 sub r {
     (my $cur) = @_;
-    if (index($cur, "0") % $width != ($width - 1)) {
-	if (not $cur =~ m/0=/) {
-	    $cur =~ s/0(.)/$1 0/;
-	    $cur =~ s/ //;
+    my $idx = index($cur, "0");
+    if ($idx % $width != ($width - 1)) {
+	my $pos = $idx + 1;
+	if (substr($cur, $pos, 1) ne "=") {
+	    my $tmp = substr($cur, $idx, 1);
+	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
+	    substr($cur, $pos, 1) = $tmp;
 	    return $cur;
 	}
     }
@@ -68,10 +79,13 @@ sub r {
 
 sub l {
     (my $cur) = @_;
-    if (index($cur, "0") % $width != 0) {
-	my $reg = '.' x ($width - 2);
-	if (not $cur =~ m/=0/) {
-	    $cur =~ s/(.)0/0$1/;
+    my $idx = index($cur, "0");
+    if ($idx % $width != 0) {
+	my $pos = $idx - 1;
+	if (substr($cur, $pos, 1) ne "=") {
+	    my $tmp = substr($cur, $idx, 1);
+	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
+	    substr($cur, $pos, 1) = $tmp;
 	    return $cur;
 	}
     }
@@ -80,10 +94,13 @@ sub l {
 
 sub u {
     (my $cur) = @_;
-    if (index($cur, "0") >= $width) {
-	my $reg = '.' x ($width - 1);
-	if (not $cur =~ m/=($reg)0/) {
-	    $cur =~ s/(.)($reg)0/0$2$1/;
+    my $idx = index($cur, "0");
+    if ($idx >= $width) {
+	my $pos = $idx - $width;
+	if (substr($cur, $pos, 1) ne "=") {
+	    my $tmp = substr($cur, $idx, 1);
+	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
+	    substr($cur, $pos, 1) = $tmp;
 	    return $cur;
 	}
     }
@@ -92,11 +109,13 @@ sub u {
 
 sub d {
     (my $cur) = @_;
-    if (length($cur) - index($cur, "0") > $width) {
-	my $reg = '.' x ($width - 1);
-	if (not $cur =~ m/0($reg)=/) {
-	    $cur =~ s/0($reg)(.)/$2$1 0/;
-	    $cur =~ s/ //;
+    my $idx = index($cur, "0");
+    if (length($cur) - $idx > $width) {
+	my $pos = $idx + $width;
+	if (substr($cur, $pos, 1) ne "=") {
+	    my $tmp = substr($cur, $idx, 1);
+	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
+	    substr($cur, $pos, 1) = $tmp;
 	    return $cur;
 	}
     }
