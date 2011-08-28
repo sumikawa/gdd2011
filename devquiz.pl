@@ -15,6 +15,12 @@ my $input = <FH>;
 my $input = <FH>;
 my $count;
 
+#$width = 4;
+#$height = 4;
+#$good =            "123456789ABC=EF0";
+#printf "%d\n",  md("32465871FAC0=9BE");
+#exit 0;
+
 my $t1 = (times)[0];
 
 while (<FH>) {
@@ -109,97 +115,69 @@ sub d {
     return "";
 }
 
+sub md {
+    (my $cur) = @_;
+
+    my $md = 0;
+    my @k = ('0'..'9', 'A'..'Z');
+
+    for (my $i = 1; $i < $width * $height; $i++) {
+	# 0 must be skipped for calculation
+	my $c = index($cur, $k[$i]);
+	my $g = index($good, $k[$i]);
+	$md += abs(($c % $width) - ($g % $width));
+	$md += abs(int($c / $width) - int($g / $width));
+    }
+    return $md;
+}
+
 sub srch {
     my @srchs = @_;
-    my $min = 30;
+#    my $min = 30;
+    my $min = 200;
     my $minpath = "";
 
     while (@srchs) {
 	my $path  = pop(@srchs);
 	my $num = pop(@srchs);
 	my $current = pop(@srchs);
+	my $next;
 
-	my $next = "";
+	next if ($num + md($current) >= $min);
 
-	next if ($num >= $min);
-#	print STDERR "$current: $num, $path \r";
+	if (exists($done{$current})) {
+	    if (length($done{$current}) > length($path)) {
+	    } else {
+		next;
+	    }
+	}
+
+	$done{$current} = $path;
+	if ($current eq $good) {
+	    $minpath = $path;
+	    $min = $num;
+	    print STDERR "current minpath: $minpath  \r";
+	    next;
+	}
+
 
 	$next = r($current);
 	if ($next ne "") {
-	    if (exists($done{$next})) {
-		if (length($done{$next}) > length($path) + 1) {
-		    $done{$next} = $path . "R";
-		    push(@srchs, ($next, $num + 1, $path . "R"));
-		}
-	    } else {
-		if ($next eq $good) {
-		    $minpath = $path . "R";
-		    $min = $num;
-		    print STDERR "current minpath: $minpath  \r";
-		    next;
-		}
-		$done{$next} = $path . "R";
-		push(@srchs, ($next, $num + 1, $path . "R"));
-	    }
+	    push(@srchs, ($next, $num + 1, $path . "R"));
 	}
-
 	$next = l($current);
 	if ($next ne "") {
-	    if (exists($done{$next})) {
-		if (length($done{$next}) > length($path) + 1) {
-		    $done{$next} = $path . "L";
-		    push(@srchs, ($next, $num + 1, $path . "L"));
-		}
-	    } else {
-		if ($next eq $good) {
-		    $minpath = $path . "L";
-		    $min = $num;
-		    print STDERR "current minpath: $minpath  \r";
-		    next;
-		}
-		$done{$next} = $path . "L";
-		push(@srchs, ($next, $num + 1, $path . "L"));
-	    }
+	    push(@srchs, ($next, $num + 1, $path . "L"));
 	}
-
 	$next = u($current);
 	if ($next ne "") {
-	    if (exists($done{$next})) {
-		if (length($done{$next}) > length($path) + 1) {
-		    $done{$next} = $path . "U";
-		    push(@srchs, ($next, $num + 1, $path . "U"));
-		}
-	    } else {
-		if ($next eq $good) {
-		    $minpath = $path . "U";
-		    $min = $num;
-		    print STDERR "current minpath: $minpath  \r";
-		    next;
-		}
-		$done{$next} = $path . "U";
-		push(@srchs, ($next, $num + 1, $path . "U"));
-	    }
+	    push(@srchs, ($next, $num + 1, $path . "U"));
 	}
-
 	$next = d($current);
 	if ($next ne "") {
-	    if (exists($done{$next})) {
-		if (length($done{$next}) > length($path) + 1) {
-		    $done{$next} = $path . "D";
-		    push(@srchs, ($next, $num + 1, $path . "D"));
-		}
-	    } else {
-		if ($next eq $good) {
-		    $minpath = $path . "D";
-		    $min = $num;
-		    print STDERR "current minpath: $minpath  \r";
-		    next;
-		}
-		$done{$next} = $path . "D";
-		push(@srchs, ($next, $num + 1, $path . "D"));
-	    }
+	    push(@srchs, ($next, $num + 1, $path . "D"));
 	}
     }
     print "$minpath\n";
-    print STDERR "this is min: $minpath \n";
+    print STDERR "this is min: $minpath  \r";
 }
