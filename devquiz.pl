@@ -45,6 +45,7 @@ while (<FH>) {
     }
     %done = ();
     $done{$start} = 1;
+    md_init();
     srch($start, 0, "");
     undef %done;
 }
@@ -115,18 +116,29 @@ sub d {
     return "";
 }
 
+my @gpw, my @gdw;
+my @k = ('0'..'9', 'A'..'Z');
+
+sub md_init {
+    for (my $i = 1; $i < $width * $height; $i++) {
+	# 0 and = must be skipped for calculation
+	my $g = index($good, $k[$i]);
+	next if ($g == -1); # case: '='
+	$gpw[$i] = $g % $width;
+	$gdw[$i] = int($g / $width);
+    }
+}
+
 sub md {
     (my $cur) = @_;
 
     my $md = 0;
-    my @k = ('0'..'9', 'A'..'Z');
-
     for (my $i = 1; $i < $width * $height; $i++) {
-	# 0 must be skipped for calculation
+	# 0 and = must be skipped for calculation
 	my $c = index($cur, $k[$i]);
-	my $g = index($good, $k[$i]);
-	$md += abs(($c % $width) - ($g % $width));
-	$md += abs(int($c / $width) - int($g / $width));
+	next if ($c == -1); # case: '='
+	$md += abs(($c % $width) - $gpw[$i]);
+	$md += abs(int($c / $width) - $gdw[$i]);
     }
     return $md;
 }
@@ -134,7 +146,7 @@ sub md {
 sub srch {
     my @srchs = @_;
 #    my $min = 30;
-    my $min = 200;
+    my $min = 60;
     my $minpath = "";
 
     while (@srchs) {
@@ -156,7 +168,7 @@ sub srch {
 	if ($current eq $good) {
 	    $minpath = $path;
 	    $min = $num;
-	    print STDERR "current minpath: $minpath  \r";
+#	    print STDERR "current minpath: $minpath  \r";
 	    next;
 	}
 
@@ -179,5 +191,5 @@ sub srch {
 	}
     }
     print "$minpath\n";
-    print STDERR "this is min: $minpath  \r";
+#    print STDERR "this is min: $minpath  \r";
 }
