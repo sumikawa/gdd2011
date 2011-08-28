@@ -1,21 +1,6 @@
 #!/usr/bin/perl
 use strict;
 
-#my $width = 5;
-#my $height = 6;
-#my $start = "12=E4D9HIF8=GN576LOABMTPKQSR0J";
-#my $good  = "12=456789AB=DEFGHIJKLMNOPQRST0";
-
-#my $width = 4;
-#my $height = 4;
-#my $start = "32465871FAC0=9BE";
-#my $good  = "123456789ABC=DE0";
-
-#my $width = 3;
-#my $height = 4;
-#my $start = "1327A40=5B96";
-#my $good  = "1234567=89A0";
-
 $| = 1;
 
 my $width;
@@ -34,10 +19,8 @@ my $t1 = (times)[0];
 
 while (<FH>) {
     $count++;
-    last if ($count > 500);
     print STDERR "($count/5000)\r";
-#    if (not m/^3,3,|^4,3|^3,4/) {
-    if (not m/^3,3/) {
+    if (not m/^3,3,|^4,3|^3,4/) {
 	print "\n";
 	next;
     }
