@@ -19,8 +19,10 @@ my $t1 = (times)[0];
 
 while (<FH>) {
     $count++;
+    last if ($count > 500);
     print STDERR "($count/5000)\r";
-    if (not m/^3,3,|^4,3|^3,4/) {
+#    if (not m/^3,3,|^4,3|^3,4/) {
+    if (not m/^3,3/) {
 	print "\n";
 	next;
     }
@@ -44,6 +46,8 @@ while (<FH>) {
 my $t2 = (times)[0];
 my $t3 = $t2 - $t1;
 print STDERR "$t3 sec\n";
+
+exit 0;
 
 sub r {
     (my $cur) = @_;
@@ -118,7 +122,7 @@ sub srch {
 	my $next = "";
 
 	next if ($num >= $min);
-#	print STDERR "$current: $num, $path\n";
+#	print STDERR "$current: $num, $path \r";
 
 	$next = r($current);
 	if ($next ne "") {
@@ -131,7 +135,7 @@ sub srch {
 		if ($next eq $good) {
 		    $minpath = $path . "R";
 		    $min = $num;
-		    print STDERR "current minpath: $minpath\n";
+		    print STDERR "current minpath: $minpath  \r";
 		    next;
 		}
 		$done{$next} = $path . "R";
@@ -150,7 +154,7 @@ sub srch {
 		if ($next eq $good) {
 		    $minpath = $path . "L";
 		    $min = $num;
-		    print STDERR "current minpath: $minpath\n";
+		    print STDERR "current minpath: $minpath  \r";
 		    next;
 		}
 		$done{$next} = $path . "L";
@@ -169,7 +173,7 @@ sub srch {
 		if ($next eq $good) {
 		    $minpath = $path . "U";
 		    $min = $num;
-		    print STDERR "current minpath: $minpath\n";
+		    print STDERR "current minpath: $minpath  \r";
 		    next;
 		}
 		$done{$next} = $path . "U";
@@ -188,7 +192,7 @@ sub srch {
 		if ($next eq $good) {
 		    $minpath = $path . "D";
 		    $min = $num;
-		    print STDERR "current minpath: $minpath\n";
+		    print STDERR "current minpath: $minpath  \r";
 		    next;
 		}
 		$done{$next} = $path . "D";
@@ -197,5 +201,5 @@ sub srch {
 	}
     }
     print "$minpath\n";
-    print STDERR "thisismin: $minpath\n";
+    print STDERR "this is min: $minpath \n";
 }
