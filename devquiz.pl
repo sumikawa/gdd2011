@@ -28,8 +28,11 @@ my $good;
 open(FH, "quiz.txt");
 my $input = <FH>;
 my $input = <FH>;
+my $count;
 while (<FH>) {
-    if (not m/^3,3,/) {
+    $count++;
+    print STDERR "($count/5000)\r";
+    if (not m/^3,3,|^4,3|^3,4/) {
 	print "\n";
 	next;
     }
@@ -47,6 +50,7 @@ while (<FH>) {
     %done = ();
     $done{$start} = 1;
     srch($start, 0, "");
+    undef %done;
 }
 
 
@@ -101,59 +105,76 @@ sub d {
 
 sub srch {
     my @srchs = @_;
+    my $min = 30;
+    my $minpath = "";
 
     while (@srchs) {
-	my $current = shift(@srchs);
-	my $num = shift(@srchs);
-	my $path  = shift(@srchs);
-
+	my $path  = pop(@srchs);
+	my $num = pop(@srchs);
+	my $current = pop(@srchs);
 	my $next = "";
-#	print "$current: $num, $path\n";
-	if ($current eq $good) {
-	    print "$path\n";
-	    return;
-	}
+
+	next if ($num >= $min);
+#	print STDERR "$current: $num, $path\n";
 
 	$next = r($current);
-	if ($next eq "") {
-	} else {
+	if ($next ne "") {
 	    if (exists($done{$next})) {
 	    } else {
-		$done{$next}++;
+		if ($next eq $good) {
+		    $minpath = $path . "R";
+		    $min = $num;
+		    next;
+		}
+		$done{$next} = 1;
 		push(@srchs, ($next, $num + 1, $path . "R"));
 	    }
 	}
 
 	$next = l($current);
-	if ($next eq "") {
-	} else {
+	if ($next ne "") {
 	    if (exists($done{$next})) {
 	    } else {
-		$done{$next}++;
+		if ($next eq $good) {
+		    $minpath = $path . "L";
+		    $min = $num;
+		    next;
+		}
+		$done{$next} = 1;
 		push(@srchs, ($next, $num + 1, $path . "L"));
 	    }
 	}
 
 	$next = u($current);
-	if ($next eq "") {
-	} else {
+	if ($next ne "") {
 	    if (exists($done{$next})) {
 	    } else {
-		$done{$next}++;
+		if ($next eq $good) {
+		    $minpath = $path . "U";
+		    $min = $num;
+		    next;
+		}
+		$done{$next} = 1;
 		push(@srchs, ($next, $num + 1, $path . "U"));
 	    }
 	}
 
 	$next = d($current);
-	if ($next eq "") {
-	} else {
-	    if (exists($done{$next})) {
+	if ($next ne "") {
+	    if (exists($done{$next}) && ($done{$next} > 0)) {
 	    } else {
-		$done{$next}++;
+		if ($next eq $good) {
+		    $minpath = $path . "D";
+		    $min = $num;
+		    next;
+		}
+		$done{$next} = 1;
 		push(@srchs, ($next, $num + 1, $path . "D"));
 	    }
 	}
     }
+    print "$minpath\n";
+#    print STDERR "thisismin: $minpath\n";
 }
 
 sub test {
