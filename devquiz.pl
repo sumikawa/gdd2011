@@ -21,12 +21,14 @@ my $count;
 #printf "%d\n",  md("32465871FAC0=9BE");
 #exit 0;
 
+my $min;
+
 my $t1 = (times)[0];
 
 while (<FH>) {
     $count++;
     last if ($count > 500);
-    print STDERR "($count/5000)\r";
+#    print STDERR "($count/5000)\r";
 #    if (not m/^3,3,|^4,3|^3,4/) {
     if (not m/^3,3/) {
 	print "\n";
@@ -43,11 +45,23 @@ while (<FH>) {
 	    $good = substr($good, 0, $i) . "=" . substr($good, $i + 1, length($start) - $i);
 	}
     }
-    %done = ();
-    $done{$start} = 1;
+
     md_init();
-    srch($start, 0, "");
-    undef %done;
+    my $init_num = md($start);
+    for (my $i = 0; $i < 10; $i++) {
+	$min = $init_num;
+	%done = ();
+	$done{$start} = 1;
+	my $result = srch($start, 0, "");
+	undef %done;
+	if ($result eq "") {
+	    print "loop out\n" if ($i == 9); # xxx
+	} else {
+	    print "$result\n";
+	    last;
+	}
+	$init_num += 2;
+    }
 }
 
 my $t2 = (times)[0];
@@ -117,12 +131,11 @@ sub d {
 }
 
 my @gpw, my @gdw;
-my @k = ('0'..'9', 'A'..'Z');
 
 sub md_init {
     for (my $i = 1; $i < $width * $height; $i++) {
 	# 0 and = must be skipped for calculation
-	my $g = index($good, $k[$i]);
+	my $g = index($good, ('0'..'9', 'A'..'Z')[$i]);
 	next if ($g == -1); # case: '='
 	$gpw[$i] = $g % $width;
 	$gdw[$i] = int($g / $width);
@@ -135,18 +148,19 @@ sub md {
     my $md = 0;
     for (my $i = 1; $i < $width * $height; $i++) {
 	# 0 and = must be skipped for calculation
-	my $c = index($cur, $k[$i]);
+	my $c = index($cur, ('0'..'9', 'A'..'Z')[$i]);
 	next if ($c == -1); # case: '='
 	$md += abs(($c % $width) - $gpw[$i]);
 	$md += abs(int($c / $width) - $gdw[$i]);
     }
+#    printf STDERR "md %s, %d ",$cur, $md;
     return $md;
 }
 
 sub srch {
     my @srchs = @_;
 #    my $min = 30;
-    my $min = 60;
+#    my $min = 60;
     my $minpath = "";
 
     while (@srchs) {
@@ -154,8 +168,6 @@ sub srch {
 	my $num = pop(@srchs);
 	my $current = pop(@srchs);
 	my $next;
-
-	next if ($num + md($current) >= $min);
 
 	if (exists($done{$current})) {
 	    if (length($done{$current}) > length($path)) {
@@ -172,6 +184,7 @@ sub srch {
 	    next;
 	}
 
+	next if ($num + md($current) >= $min);
 
 	$next = r($current);
 	if ($next ne "") {
@@ -190,6 +203,6 @@ sub srch {
 	    push(@srchs, ($next, $num + 1, $path . "D"));
 	}
     }
-    print "$minpath\n";
+    return $minpath;
 #    print STDERR "this is min: $minpath  \r";
 }
