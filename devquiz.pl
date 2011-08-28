@@ -112,6 +112,7 @@ sub srch {
 	my $path  = pop(@srchs);
 	my $num = pop(@srchs);
 	my $current = pop(@srchs);
+
 	my $next = "";
 
 	next if ($num >= $min);
@@ -120,13 +121,18 @@ sub srch {
 	$next = r($current);
 	if ($next ne "") {
 	    if (exists($done{$next})) {
+		if (length($done{$next}) > length($path) + 1) {
+		    $done{$next} = $path . "R";
+		    push(@srchs, ($next, $num + 1, $path . "R"));
+		}
 	    } else {
 		if ($next eq $good) {
 		    $minpath = $path . "R";
 		    $min = $num;
+		    print STDERR "current minpath: $minpath\n";
 		    next;
 		}
-		$done{$next} = 1;
+		$done{$next} = $path . "R";
 		push(@srchs, ($next, $num + 1, $path . "R"));
 	    }
 	}
@@ -134,13 +140,18 @@ sub srch {
 	$next = l($current);
 	if ($next ne "") {
 	    if (exists($done{$next})) {
+		if (length($done{$next}) > length($path) + 1) {
+		    $done{$next} = $path . "L";
+		    push(@srchs, ($next, $num + 1, $path . "L"));
+		}
 	    } else {
 		if ($next eq $good) {
 		    $minpath = $path . "L";
 		    $min = $num;
+		    print STDERR "current minpath: $minpath\n";
 		    next;
 		}
-		$done{$next} = 1;
+		$done{$next} = $path . "L";
 		push(@srchs, ($next, $num + 1, $path . "L"));
 	    }
 	}
@@ -148,33 +159,43 @@ sub srch {
 	$next = u($current);
 	if ($next ne "") {
 	    if (exists($done{$next})) {
+		if (length($done{$next}) > length($path) + 1) {
+		    $done{$next} = $path . "U";
+		    push(@srchs, ($next, $num + 1, $path . "U"));
+		}
 	    } else {
 		if ($next eq $good) {
 		    $minpath = $path . "U";
 		    $min = $num;
+		    print STDERR "current minpath: $minpath\n";
 		    next;
 		}
-		$done{$next} = 1;
+		$done{$next} = $path . "U";
 		push(@srchs, ($next, $num + 1, $path . "U"));
 	    }
 	}
 
 	$next = d($current);
 	if ($next ne "") {
-	    if (exists($done{$next}) && ($done{$next} > 0)) {
+	    if (exists($done{$next})) {
+		if (length($done{$next}) > length($path) + 1) {
+		    $done{$next} = $path . "D";
+		    push(@srchs, ($next, $num + 1, $path . "D"));
+		}
 	    } else {
 		if ($next eq $good) {
 		    $minpath = $path . "D";
 		    $min = $num;
+		    print STDERR "current minpath: $minpath\n";
 		    next;
 		}
-		$done{$next} = 1;
+		$done{$next} = $path . "D";
 		push(@srchs, ($next, $num + 1, $path . "D"));
 	    }
 	}
     }
     print "$minpath\n";
-#    print STDERR "thisismin: $minpath\n";
+    print STDERR "thisismin: $minpath\n";
 }
 
 sub test {
