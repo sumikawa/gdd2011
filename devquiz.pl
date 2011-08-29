@@ -7,6 +7,7 @@ my $width;
 my $height;
 
 my %done;
+my @notyet;
 my $orig = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0";
 my $good;
 
@@ -49,11 +50,11 @@ while (<FH>) {
 
     md_init();
     my $init_num = md($start) + 1;
+    %done = ();
+    @notyet = ($start, 0, "");
     for (my $i = 0; $i < 7; $i++) {
 	$min = $init_num;
-	%done = ();
-	my $result = srch($start, 0, "");
-	undef %done;
+	my $result = srch();
 	if ($result eq "") {
 	    print "\n" if ($i == 6); # xxx
 	} else {
@@ -62,6 +63,8 @@ while (<FH>) {
 	}
 	$init_num += 2;
     }
+    undef @notyet;
+    undef %done;
 }
 
 my $t2 = (times)[0];
@@ -161,6 +164,14 @@ sub srch {
     my @srchs = @_;
     my $minpath = "";
 
+    while (@notyet) {
+	my $path  = pop(@notyet);
+	my $num = pop(@notyet);
+	my $current = pop(@notyet);
+
+	push(@srchs, ($current, $num, $path));
+    }
+
     while (@srchs) {
 	my $path  = pop(@srchs);
 	my $num = pop(@srchs);
@@ -174,6 +185,11 @@ sub srch {
 	    }
 	}
 
+	if ($num + md($current) >= $min) {
+	    push(@notyet, ($current, $num, $path));
+	    next;
+	}
+
 	$done{$current} = $path;
 	if ($current eq $good) {
 	    $minpath = $path;
@@ -181,8 +197,6 @@ sub srch {
 #	    print STDERR "current minpath: $minpath  \r";
 	    next;
 	}
-
-	next if ($num + md($current) >= $min);
 
 	my $r = r($current);
 	my $l = l($current);
