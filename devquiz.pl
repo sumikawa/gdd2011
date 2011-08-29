@@ -182,8 +182,6 @@ sub srch {
 	    next;
 	}
 
-	printf (STDERR "%d, %d, %d\n", $num, md($current), $min) if ($num == 0);
-
 	next if ($num + md($current) >= $min);
 
 	my $r = r($current);
