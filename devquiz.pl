@@ -15,13 +15,6 @@ open(FH, "quiz.txt");
 my $input = <FH>;
 my $input = <FH>;
 my $count;
-
-#$width = 4;
-#$height = 4;
-#$good =            "123456789ABC=EF0";
-#printf "%d\n",  md("32465871FAC0=9BE");
-#exit 0;
-
 my $min;
 
 my $t1 = (times)[0];
@@ -30,7 +23,8 @@ while (<FH>) {
     $count++;
 #    last if ($count > 500);
     print STDERR "($count/5000)\r";
-    if (not m/^3,3,|^4,3|^3,4/) {
+#    if (not m/^3,3,|^4,3|^3,4/) {
+    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3|^4,5|^5,4/) {
 #    if (not m/^3,3/) {
 	print "\n";
