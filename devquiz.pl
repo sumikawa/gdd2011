@@ -185,22 +185,14 @@ sub srch {
 
 	next if ($num + md($current) >= $min);
 
-	$next = r($current);
-	if ($next ne "") {
-	    push(@srchs, ($next, $num + 1, $path . "R"));
-	}
-	$next = l($current);
-	if ($next ne "") {
-	    push(@srchs, ($next, $num + 1, $path . "L"));
-	}
-	$next = u($current);
-	if ($next ne "") {
-	    push(@srchs, ($next, $num + 1, $path . "U"));
-	}
-	$next = d($current);
-	if ($next ne "") {
-	    push(@srchs, ($next, $num + 1, $path . "D"));
-	}
+	my $r = r($current);
+	my $l = l($current);
+	my $u = u($current);
+	my $d = d($current);
+	push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
+	push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
+	push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
+	push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
     }
     return $minpath;
 #    print STDERR "this is min: $minpath  \r";
