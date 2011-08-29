@@ -27,10 +27,11 @@ my $t1 = (times)[0];
 
 while (<FH>) {
     $count++;
-    last if ($count > 500);
-#    print STDERR "($count/5000)\r";
-#    if (not m/^3,3,|^4,3|^3,4/) {
-    if (not m/^3,3/) {
+#    last if ($count > 500);
+    print STDERR "($count/5000)\r";
+    if (not m/^3,3,|^4,3|^3,4/) {
+#    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3|^4,5|^5,4/) {
+#    if (not m/^3,3/) {
 	print "\n";
 	next;
     }
@@ -48,14 +49,14 @@ while (<FH>) {
 
     md_init();
     my $init_num = md($start);
-    for (my $i = 0; $i < 10; $i++) {
+    for (my $i = 0; $i < 7; $i++) {
 	$min = $init_num;
 	%done = ();
 	$done{$start} = 1;
 	my $result = srch($start, 0, "");
 	undef %done;
 	if ($result eq "") {
-	    print "loop out\n" if ($i == 9); # xxx
+	    print "\n" if ($i == 6); # xxx
 	} else {
 	    print "$result\n";
 	    last;
@@ -153,14 +154,12 @@ sub md {
 	$md += abs(($c % $width) - $gpw[$i]);
 	$md += abs(int($c / $width) - $gdw[$i]);
     }
-#    printf STDERR "md %s, %d ",$cur, $md;
+#    printf STDERR "md %s, %d  \r",$cur, $md;
     return $md;
 }
 
 sub srch {
     my @srchs = @_;
-#    my $min = 30;
-#    my $min = 60;
     my $minpath = "";
 
     while (@srchs) {
