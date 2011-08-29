@@ -28,7 +28,7 @@ my $t1 = (times)[0];
 while (<FH>) {
     $count++;
 #    last if ($count > 500);
-#    print STDERR "($count/5000)\r";
+    print STDERR "($count/5000)\r";
     if (not m/^3,3,|^4,3|^3,4/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3|^4,5|^5,4/) {
 #    if (not m/^3,3/) {
@@ -48,7 +48,7 @@ while (<FH>) {
     }
 
     md_init();
-    my $init_num = md($start)  + 1;
+    my $init_num = md($start) + 1;
     for (my $i = 0; $i < 7; $i++) {
 	$min = $init_num;
 	%done = ();
