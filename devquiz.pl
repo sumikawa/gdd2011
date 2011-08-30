@@ -16,6 +16,7 @@ my $input = <FH>;
 my $input = <FH>;
 my $count;
 my $min;
+my $trynum;
 
 my $t1 = (times)[0];
 
@@ -24,12 +25,12 @@ while (<FH>) {
 #    last if ($count > 500);
     print STDERR "($count/5000)\r";
 #    if (not m/^3,3,|^4,3|^3,4/) {
-    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3/) {
+#    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3|^4,5|^5,4/) {
 #    if (not m/^3,3/) {
-	print "\n";
-	next;
-    }
+#	print "\n";
+#	next;
+#    }
     chomp;
     my $start = $_;
     $start =~ s/^(\d),(\d),//;
@@ -46,12 +47,15 @@ while (<FH>) {
     my $init_num = md($start) + 1;
     %done = ();
     @notyet = ($start, 0, "");
-    for (my $i = 0; $i < 7; $i++) {
-	$min = $init_num;
+    $trynum = 0;
+    for (my $i = 0; $i < 1; $i++) {
+	$min = $init_num + 16;
 	my $result = srch();
 	if ($result eq "") {
-	    print "\n" if ($i == 6); # xxx
+	    printf STDERR "no result, # of try = %d\n", $trynum;
+	    print "\n" if ($i == 0); # xxx
 	} else {
+	    printf STDERR "path = %s, # of try = %d\n", $result, $trynum;
 	    print "$result\n";
 	    last;
 	}
@@ -59,6 +63,7 @@ while (<FH>) {
     }
     undef @notyet;
     undef %done;
+    $trynum = 0;
 }
 
 my $t2 = (times)[0];
@@ -172,6 +177,9 @@ sub srch {
 	my $current = pop(@srchs);
 	my $next;
 
+	$trynum++;
+	last if ($trynum > 600000);
+
 	if (exists($done{$current})) {
 	    if (length($done{$current}) > length($path)) {
 	    } else {
@@ -196,11 +204,37 @@ sub srch {
 	my $l = l($current);
 	my $u = u($current);
 	my $d = d($current);
-	push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
-	push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
-	push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
-	push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
+
+	my $rmd = md($r);
+	my $lmd = md($l);
+	my $umd = md($u);
+	my $dmd = md($d);
+
+	if ($r < $l) {
+	    if ($u < $d) {
+		push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
+		push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
+		push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
+		push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
+	    } else {
+		push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
+		push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
+		push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
+		push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
+	    }
+	} else {
+	    if ($u < $d) {
+		push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
+		push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
+		push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
+		push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
+	    } else {
+		push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
+		push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
+		push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
+		push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
+	    }
+	}
     }
     return $minpath;
-#    print STDERR "this is min: $minpath  \r";
 }
