@@ -18,6 +18,12 @@ my $count;
 my $min;
 my $trynum;
 
+my @gpw, my @gdw;
+my $rmd;
+my $lmd;
+my $umd;
+my $dmd;
+
 my $t1 = (times)[0];
 
 while (<FH>) {
@@ -26,6 +32,7 @@ while (<FH>) {
     print STDERR "($count/5000)\r";
 #    if (not m/^3,3,|^4,3|^3,4/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3/) {
+#    if (not m/^[34],[34],|^[34],5|^5,[34]/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3|^4,5|^5,4/) {
 #    if (not m/^3,3/) {
 #	print "\n";
@@ -78,9 +85,25 @@ sub r {
     if ($idx % $width != ($width - 1)) {
 	my $pos = $idx + 1;
 	if (substr($cur, $pos, 1) ne "=") {
+
+	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
+	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
+	    $rmd -= abs(($c1 % $width) - $gpw[$idx]);
+	    $rmd -= abs(int($c1 / $width) - $gdw[$idx]);
+	    $rmd -= abs(($c2 % $width) - $gpw[$pos]);
+	    $rmd -= abs(int($c2 / $width) - $gdw[$pos]);
+
 	    my $tmp = substr($cur, $idx, 1);
 	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
 	    substr($cur, $pos, 1) = $tmp;
+
+	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
+	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
+	    $rmd += abs(($c1 % $width) - $gpw[$idx]);
+	    $rmd += abs(int($c1 / $width) - $gdw[$idx]);
+	    $rmd += abs(($c2 % $width) - $gpw[$pos]);
+	    $rmd += abs(int($c2 / $width) - $gdw[$pos]);
+
 	    return $cur;
 	}
     }
@@ -93,9 +116,25 @@ sub l {
     if ($idx % $width != 0) {
 	my $pos = $idx - 1;
 	if (substr($cur, $pos, 1) ne "=") {
+
+	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
+	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
+	    $lmd -= abs(($c1 % $width) - $gpw[$idx]);
+	    $lmd -= abs(int($c1 / $width) - $gdw[$idx]);
+	    $lmd -= abs(($c2 % $width) - $gpw[$pos]);
+	    $lmd -= abs(int($c2 / $width) - $gdw[$pos]);
+
 	    my $tmp = substr($cur, $idx, 1);
 	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
 	    substr($cur, $pos, 1) = $tmp;
+
+	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
+	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
+	    $lmd += abs(($c1 % $width) - $gpw[$idx]);
+	    $lmd += abs(int($c1 / $width) - $gdw[$idx]);
+	    $lmd += abs(($c2 % $width) - $gpw[$pos]);
+	    $lmd += abs(int($c2 / $width) - $gdw[$pos]);
+
 	    return $cur;
 	}
     }
@@ -108,9 +147,25 @@ sub u {
     if ($idx >= $width) {
 	my $pos = $idx - $width;
 	if (substr($cur, $pos, 1) ne "=") {
+
+	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
+	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
+	    $umd -= abs(($c1 % $width) - $gpw[$idx]);
+	    $umd -= abs(int($c1 / $width) - $gdw[$idx]);
+	    $umd -= abs(($c2 % $width) - $gpw[$pos]);
+	    $umd -= abs(int($c2 / $width) - $gdw[$pos]);
+
 	    my $tmp = substr($cur, $idx, 1);
 	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
 	    substr($cur, $pos, 1) = $tmp;
+
+	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
+	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
+	    $umd += abs(($c1 % $width) - $gpw[$idx]);
+	    $umd += abs(int($c1 / $width) - $gdw[$idx]);
+	    $umd += abs(($c2 % $width) - $gpw[$pos]);
+	    $umd += abs(int($c2 / $width) - $gdw[$pos]);
+
 	    return $cur;
 	}
     }
@@ -123,16 +178,29 @@ sub d {
     if (length($cur) - $idx > $width) {
 	my $pos = $idx + $width;
 	if (substr($cur, $pos, 1) ne "=") {
+
+	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
+	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
+	    $dmd -= abs(($c1 % $width) - $gpw[$idx]);
+	    $dmd -= abs(int($c1 / $width) - $gdw[$idx]);
+	    $dmd -= abs(($c2 % $width) - $gpw[$pos]);
+	    $dmd -= abs(int($c2 / $width) - $gdw[$pos]);
+
 	    my $tmp = substr($cur, $idx, 1);
 	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
 	    substr($cur, $pos, 1) = $tmp;
 	    return $cur;
+
+	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
+	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
+	    $dmd += abs(($c1 % $width) - $gpw[$idx]);
+	    $dmd += abs(int($c1 / $width) - $gdw[$idx]);
+	    $dmd += abs(($c2 % $width) - $gpw[$pos]);
+	    $dmd += abs(int($c2 / $width) - $gdw[$pos]);
 	}
     }
     return "";
 }
-
-my @gpw, my @gdw;
 
 sub md_init {
     for (my $i = 1; $i < $width * $height; $i++) {
@@ -181,7 +249,7 @@ sub srch {
 	last if ($trynum > 600000);
 
 	if (exists($done{$current})) {
-	    if (length($done{$current}) > length($path)) {
+	    if ($done{$current} > length($path)) {
 	    } else {
 		next;
 	    }
@@ -192,7 +260,7 @@ sub srch {
 	    next;
 	}
 
-	$done{$current} = $path;
+	$done{$current} = length($path);
 	if ($current eq $good) {
 	    $minpath = $path;
 	    $min = $num;
@@ -204,11 +272,6 @@ sub srch {
 	my $l = l($current);
 	my $u = u($current);
 	my $d = d($current);
-
-	my $rmd = md($r);
-	my $lmd = md($l);
-	my $umd = md($u);
-	my $dmd = md($d);
 
 	if ($r < $l) {
 	    if ($u < $d) {
