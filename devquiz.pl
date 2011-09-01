@@ -11,6 +11,8 @@ my @notyet;
 my $orig = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0";
 my $good;
 
+#open(AN, "answer.txt");
+
 open(FH, "quiz.txt");
 my $input = <FH>;
 my $input = <FH>;
@@ -30,6 +32,13 @@ while (<FH>) {
     $count++;
 #    last if ($count > 500);
     print STDERR "($count/5000)\r";
+    my $an = <AN>;
+
+    if ($an ne "") {
+	print "$an\n";
+	next;
+    }
+
 #    if (not m/^3,3,|^4,3|^3,4/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3/) {
 #    if (not m/^[34],[34],|^[34],5|^5,[34]/) {
