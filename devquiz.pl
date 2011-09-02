@@ -11,7 +11,7 @@ my @notyet;
 my $orig = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0";
 my $good;
 
-#open(AN, "answer.txt");
+open(AN, "answer.txt");
 
 open(FH, "quiz.txt");
 my $input = <FH>;
@@ -32,21 +32,21 @@ while (<FH>) {
     $count++;
 #    last if ($count > 500);
     print STDERR "($count/5000)\r";
-    my $an = <AN>;
 
-    if ($an ne "") {
-	print "$an\n";
+    my $an = <AN>;
+    if ($an ne "\n") {
+	print "$an";
 	next;
     }
 
 #    if (not m/^3,3,|^4,3|^3,4/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3/) {
-#    if (not m/^[34],[34],|^[34],5|^5,[34]/) {
+    if (not m/^[34],[34],|^[34],5|^5,[34]/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3|^4,5|^5,4/) {
 #    if (not m/^3,3/) {
-#	print "\n";
-#	next;
-#    }
+	print "\n";
+	next;
+    }
     chomp;
     my $start = $_;
     $start =~ s/^(\d),(\d),//;
@@ -65,7 +65,7 @@ while (<FH>) {
     @notyet = ($start, 0, "");
     $trynum = 0;
     for (my $i = 0; $i < 1; $i++) {
-	$min = $init_num + 16;
+	$min = $init_num + 24;
 	my $result = srch();
 	if ($result eq "") {
 	    printf STDERR "no result, # of try = %d\n", $trynum;
@@ -255,7 +255,7 @@ sub srch {
 	my $next;
 
 	$trynum++;
-	last if ($trynum > 600000);
+	last if ($trynum > 1000000);
 
 	if (exists($done{$current})) {
 	    if ($done{$current} > length($path)) {
