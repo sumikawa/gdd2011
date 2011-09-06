@@ -68,7 +68,7 @@ while (<FH>) {
     $minmd = 99999;
     $minmdpath = "";
 
-    my $loopmax = 200;
+    my $loopmax = 300;
     for (my $i = 0; $i < $loopmax; $i++) {
 	print STDERR "($count/5000), loop: $i, min: $init_num, trynum: $trynum, minmd: $minmd, minpath: $minmdpath\r";
 	$min = $init_num;
@@ -264,7 +264,7 @@ sub srch {
 	my $next;
 
 	$trynum++;
-	last if ($trynum > 1000000);
+	last if ($trynum > 3000000);
 
 	if (exists($done{$current})) {
 	    if ($done{$current} > length($path)) {
@@ -278,8 +278,8 @@ sub srch {
 	    if ($currentmd < $minmd) {
 		$minmd = $currentmd;
 		$minmdpath = $current;
-#		undef @notyet;
-#		@notyet = ();
+		undef @notyet;
+		@notyet = ();
 		push(@notyet, ($current, $num, $path));
 		$numcand = 0;
 #		print STDERR "current md: $currentmd\n";
