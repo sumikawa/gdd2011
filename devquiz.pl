@@ -20,6 +20,9 @@ my $count;
 my $min;
 my $trynum;
 
+my $minmd;
+my $minmdpath;
+
 my @gpw, my @gdw;
 my $rmd;
 my $lmd;
@@ -30,8 +33,6 @@ my $t1 = (times)[0];
 
 while (<FH>) {
     $count++;
-#    last if ($count > 500);
-    print STDERR "($count/5000)\r";
 
     my $an = <AN>;
     if ($an ne "\n") {
@@ -40,13 +41,13 @@ while (<FH>) {
     }
 
 #    if (not m/^3,3,|^4,3|^3,4/) {
+#    if (not m/^[34],[34],/) {
+#    if (not m/^[34],[34],|^[34],5|^5,[34]/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3/) {
-    if (not m/^[34],[34],|^[34],5|^5,[34]/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3|^4,5|^5,4/) {
-#    if (not m/^3,3/) {
-	print "\n";
-	next;
-    }
+#	print "\n";
+#	next;
+#    }
     chomp;
     my $start = $_;
     $start =~ s/^(\d),(\d),//;
@@ -64,18 +65,25 @@ while (<FH>) {
     %done = ();
     @notyet = ($start, 0, "");
     $trynum = 0;
-    for (my $i = 0; $i < 1; $i++) {
-	$min = $init_num + 24;
+    $minmd = 99999;
+    $minmdpath = "";
+
+    my $loopmax = 200;
+    for (my $i = 0; $i < $loopmax; $i++) {
+	print STDERR "($count/5000), loop: $i, min: $init_num, trynum: $trynum, minmd: $minmd, minpath: $minmdpath\r";
+	$min = $init_num;
 	my $result = srch();
 	if ($result eq "") {
-	    printf STDERR "no result, # of try = %d\n", $trynum;
-	    print "\n" if ($i == 0); # xxx
+	    if ($i == $loopmax - 1) {
+		print "\n";
+		printf STDERR "no result, # of try = %d    \n", $trynum;
+	    }
 	} else {
-	    printf STDERR "path = %s, # of try = %d\n", $result, $trynum;
+	    printf STDERR "path = %s, # of try = %d     \n", $result, $trynum;
 	    print "$result\n";
 	    last;
 	}
-	$init_num += 2;
+	$init_num += 12;
     }
     undef @notyet;
     undef %done;
@@ -248,6 +256,7 @@ sub srch {
 	push(@srchs, ($current, $num, $path));
     }
 
+    my $numcand = 0;
     while (@srchs) {
 	my $path  = pop(@srchs);
 	my $num = pop(@srchs);
@@ -264,8 +273,31 @@ sub srch {
 	    }
 	}
 
-	if ($num + md($current) >= $min) {
-	    push(@notyet, ($current, $num, $path));
+	my $currentmd = md($current);
+	if ($num + $currentmd >= $min) {
+	    if ($currentmd < $minmd) {
+		$minmd = $currentmd;
+		$minmdpath = $current;
+#		undef @notyet;
+#		@notyet = ();
+		push(@notyet, ($current, $num, $path));
+		$numcand = 0;
+#		print STDERR "current md: $currentmd\n";
+	    } elsif ($currentmd == $minmd) {
+		$numcand++;
+#		if ($numcand < 10) {
+		push(@notyet, ($current, $num, $path));
+#		    unshift(@notyet, ($current, $num, $path));
+#		}
+#		if ($numcand > 1000) {
+#		    last;
+#		}
+	    } else {
+#		if ($numcand > 10) {
+#		    last;
+#		}
+#		unshift(@notyet, ($current, $num, $path));
+	    }
 	    next;
 	}
 
@@ -274,7 +306,7 @@ sub srch {
 	    $minpath = $path;
 	    $min = $num;
 #	    print STDERR "current minpath: $minpath  \r";
-	    next;
+	    last;
 	}
 
 	my $r = r($current);
