@@ -76,10 +76,10 @@ while (<FH>) {
 	if ($result eq "") {
 	    if ($i == $loopmax - 1) {
 		print "\n";
-		printf STDERR "no result, # of try = %d    \n", $trynum;
+		printf STDERR "($count/5000), no result, # of try = %d    \n", $trynum;
 	    }
 	} else {
-	    printf STDERR "path = %s, # of try = %d     \n", $result, $trynum;
+	    printf STDERR "($count/5000), path = %s, # of try = %d     \n", $result, $trynum;
 	    print "$result\n";
 	    last;
 	}
