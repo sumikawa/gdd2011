@@ -8,6 +8,7 @@ my $height;
 
 my %done;
 my @notyet;
+my @notyet2;
 my $orig = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0";
 my $good;
 
@@ -83,9 +84,10 @@ while (<FH>) {
 	    print "$result\n";
 	    last;
 	}
-	$init_num += 12;
+	$init_num += 14;
     }
     undef @notyet;
+    undef @notyet2;
     undef %done;
     $trynum = 0;
 }
@@ -248,13 +250,8 @@ sub srch {
     my @srchs = @_;
     my $minpath = "";
 
-    while (@notyet) {
-	my $path  = pop(@notyet);
-	my $num = pop(@notyet);
-	my $current = pop(@notyet);
-
-	push(@srchs, ($current, $num, $path));
-    }
+    push(@srchs, @notyet2);
+    push(@srchs, @notyet);
 
     my $numcand = 0;
     while (@srchs) {
@@ -278,6 +275,8 @@ sub srch {
 	    if ($currentmd < $minmd) {
 		$minmd = $currentmd;
 		$minmdpath = $current;
+		undef @notyet2;
+		@notyet2 = @notyet;
 		undef @notyet;
 		@notyet = ();
 		push(@notyet, ($current, $num, $path));
