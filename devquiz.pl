@@ -84,7 +84,7 @@ while (<FH>) {
 	    print "$result\n";
 	    last;
 	}
-	$init_num += 14;
+	$init_num += 16;
     }
     undef @notyet;
     undef @notyet2;
@@ -104,25 +104,9 @@ sub r {
     if ($idx % $width != ($width - 1)) {
 	my $pos = $idx + 1;
 	if (substr($cur, $pos, 1) ne "=") {
-
-	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
-	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
-	    $rmd -= abs(($c1 % $width) - $gpw[$idx]);
-	    $rmd -= abs(int($c1 / $width) - $gdw[$idx]);
-	    $rmd -= abs(($c2 % $width) - $gpw[$pos]);
-	    $rmd -= abs(int($c2 / $width) - $gdw[$pos]);
-
 	    my $tmp = substr($cur, $idx, 1);
 	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
 	    substr($cur, $pos, 1) = $tmp;
-
-	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
-	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
-	    $rmd += abs(($c1 % $width) - $gpw[$idx]);
-	    $rmd += abs(int($c1 / $width) - $gdw[$idx]);
-	    $rmd += abs(($c2 % $width) - $gpw[$pos]);
-	    $rmd += abs(int($c2 / $width) - $gdw[$pos]);
-
 	    return $cur;
 	}
     }
@@ -135,25 +119,9 @@ sub l {
     if ($idx % $width != 0) {
 	my $pos = $idx - 1;
 	if (substr($cur, $pos, 1) ne "=") {
-
-	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
-	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
-	    $lmd -= abs(($c1 % $width) - $gpw[$idx]);
-	    $lmd -= abs(int($c1 / $width) - $gdw[$idx]);
-	    $lmd -= abs(($c2 % $width) - $gpw[$pos]);
-	    $lmd -= abs(int($c2 / $width) - $gdw[$pos]);
-
 	    my $tmp = substr($cur, $idx, 1);
 	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
 	    substr($cur, $pos, 1) = $tmp;
-
-	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
-	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
-	    $lmd += abs(($c1 % $width) - $gpw[$idx]);
-	    $lmd += abs(int($c1 / $width) - $gdw[$idx]);
-	    $lmd += abs(($c2 % $width) - $gpw[$pos]);
-	    $lmd += abs(int($c2 / $width) - $gdw[$pos]);
-
 	    return $cur;
 	}
     }
@@ -166,25 +134,9 @@ sub u {
     if ($idx >= $width) {
 	my $pos = $idx - $width;
 	if (substr($cur, $pos, 1) ne "=") {
-
-	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
-	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
-	    $umd -= abs(($c1 % $width) - $gpw[$idx]);
-	    $umd -= abs(int($c1 / $width) - $gdw[$idx]);
-	    $umd -= abs(($c2 % $width) - $gpw[$pos]);
-	    $umd -= abs(int($c2 / $width) - $gdw[$pos]);
-
 	    my $tmp = substr($cur, $idx, 1);
 	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
 	    substr($cur, $pos, 1) = $tmp;
-
-	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
-	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
-	    $umd += abs(($c1 % $width) - $gpw[$idx]);
-	    $umd += abs(int($c1 / $width) - $gdw[$idx]);
-	    $umd += abs(($c2 % $width) - $gpw[$pos]);
-	    $umd += abs(int($c2 / $width) - $gdw[$pos]);
-
 	    return $cur;
 	}
     }
@@ -197,25 +149,10 @@ sub d {
     if (length($cur) - $idx > $width) {
 	my $pos = $idx + $width;
 	if (substr($cur, $pos, 1) ne "=") {
-
-	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
-	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
-	    $dmd -= abs(($c1 % $width) - $gpw[$idx]);
-	    $dmd -= abs(int($c1 / $width) - $gdw[$idx]);
-	    $dmd -= abs(($c2 % $width) - $gpw[$pos]);
-	    $dmd -= abs(int($c2 / $width) - $gdw[$pos]);
-
 	    my $tmp = substr($cur, $idx, 1);
 	    substr($cur, $idx, 1) = substr($cur, $pos, 1);
 	    substr($cur, $pos, 1) = $tmp;
 	    return $cur;
-
-	    my $c1 = index($cur, ('0'..'9', 'A'..'Z')[$idx]);
-	    my $c2 = index($cur, ('0'..'9', 'A'..'Z')[$pos]);
-	    $dmd += abs(($c1 % $width) - $gpw[$idx]);
-	    $dmd += abs(int($c1 / $width) - $gdw[$idx]);
-	    $dmd += abs(($c2 % $width) - $gpw[$pos]);
-	    $dmd += abs(int($c2 / $width) - $gdw[$pos]);
 	}
     }
     return "";
@@ -261,7 +198,7 @@ sub srch {
 	my $next;
 
 	$trynum++;
-	last if ($trynum > 3000000);
+	last if ($trynum > 4000000);
 
 	if (exists($done{$current})) {
 	    if ($done{$current} > length($path)) {
@@ -312,32 +249,10 @@ sub srch {
 	my $l = l($current);
 	my $u = u($current);
 	my $d = d($current);
-
-	if ($r < $l) {
-	    if ($u < $d) {
-		push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
-		push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
-		push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
-		push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
-	    } else {
-		push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
-		push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
-		push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
-		push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
-	    }
-	} else {
-	    if ($u < $d) {
-		push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
-		push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
-		push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
-		push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
-	    } else {
-		push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
-		push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
-		push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
-		push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
-	    }
-	}
+	push(@srchs, ($r, $num + 1, $path . "R")) if ($r ne "");
+	push(@srchs, ($d, $num + 1, $path . "D")) if ($d ne "");
+	push(@srchs, ($l, $num + 1, $path . "L")) if ($l ne "");
+	push(@srchs, ($u, $num + 1, $path . "U")) if ($u ne "");
     }
     return $minpath;
 }
