@@ -198,19 +198,18 @@ sub do_search {
     $trynum = 0;
     $minmd = 99999;
     $minmdpath = "";
+    my $result;
 
     my $loopmax = 300;
     for (my $i = 0; $i < $loopmax; $i++) {
-#	print STDERR "($count/5000), loop: $i, min: $init_num, trynum: $trynum, minmd: $minmd, minpath: $minmdpath\r";
+	print STDERR "loop: $i, min: $init_num, trynum: $trynum, minmd: $minmd, minpath: $minmdpath\r";
 	$min = $init_num;
-	my $result = srch();
+	$result = srch();
 	if ($result eq "") {
 	    if ($i == $loopmax - 1) {
 		print "\n";
-#		printf STDERR "($count/5000), no result, # of try = %d    \n", $trynum;
 	    }
 	} else {
-#	    printf STDERR "($count/5000), path = %s, # of try = %d     \n", $result, $trynum;
 	    print "$result\n";
 	    last;
 	}
@@ -219,7 +218,9 @@ sub do_search {
     undef @notyet;
     undef @notyet2;
     undef %done;
+    my $retnum = $trynum;
     $trynum = 0;
+    return ($result, $retnum)
 }
 
 1;
