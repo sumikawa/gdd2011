@@ -13,11 +13,6 @@ my $input = <FH>;
 my $input = <FH>;
 my $count;
 
-my $rmd;
-my $lmd;
-my $umd;
-my $dmd;
-
 my $t1 = (times)[0];
 
 while (<FH>) {
