@@ -1,10 +1,14 @@
 #!/usr/bin/perl
 use strict;
 use devquiz qw(srch $width $height);
+use Getopt::Std;
+
+getopts('c');
+our $opt_c;
 
 $| = 1;
 
-open(AN, "answer.txt");
+open(AN, "answer.txt") if (!$opt_c);
 open(FH, "quiz.txt");
 
 my $input = <FH>;
@@ -16,13 +20,16 @@ my $t1 = (times)[0];
 while (<FH>) {
     $count++;
 
-    my $an = <AN>;
-    if ($an || $an ne "\n") {
-	print "$an";
-	next;
+    if (!$opt_c) {
+	my $an = <AN>;
+	if ($an || $an ne "\n") {
+	    print "$an";
+	    next;
+	}
     }
 
-    if (not m/^3,3,|^4,3|^3,4/) {
+    if (not m/^3,3,/) {
+#    if (not m/^3,3,|^4,3,|^3,4,/) {
 #    if (not m/^[34],[34],/) {
 #    if (not m/^[34],[34],|^[34],5|^5,[34]/) {
 #    if (not m/^3,3,|^4,3|^3,4|^4,4|^3,5|^5,3|^3,6|^6,3/) {
