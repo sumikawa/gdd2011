@@ -1,10 +1,8 @@
 #!/usr/bin/perl
 use strict;
-use devquiz qw(srch $width $height $good);
+use devquiz qw(srch $width $height);
 
 $| = 1;
-
-my $orig = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0";
 
 open(AN, "answer.txt");
 open(FH, "quiz.txt");
@@ -37,12 +35,6 @@ while (<FH>) {
     $start =~ s/^(\d),(\d),//;
     $width = $1;
     $height = $2;
-    $good = substr($orig, 0, length($start) - 1) . "0";
-    for (my $i = 0; $i < length($start); $i++) {
-	if (substr($start, $i, 1) eq "=") {
-	    $good = substr($good, 0, $i) . "=" . substr($good, $i + 1, length($start) - $i);
-	}
-    }
     devquiz->do_search($start);
 }
 

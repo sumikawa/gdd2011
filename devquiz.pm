@@ -7,6 +7,7 @@ use Exporter;
 my %done;
 our $width;
 our $height;
+my $good;
 my $min;
 my $minmd;
 my $minmdpath;
@@ -14,12 +15,11 @@ my $minmdpath;
 my @notyet;
 my @notyet2;
 
-our $good;
 my @gpw, my @gdw;
 my $trynum;
 
 our @ISA = qw/Exporter/;
-our @EXPORT = qw/l r u d srch md_init md do_search $width $height $good/;
+our @EXPORT = qw/l r u d srch md_init md do_search $width $height/;
 
 sub r {
     (my $cur) = @_;
@@ -182,6 +182,14 @@ sub srch {
 
 sub do_search {
     (my $self, my $start) = @_;
+
+    my $orig = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0";
+    $good = substr($orig, 0, length($start) - 1) . "0";
+    for (my $i = 0; $i < length($start); $i++) {
+	if (substr($start, $i, 1) eq "=") {
+	    $good = substr($good, 0, $i) . "=" . substr($good, $i + 1, length($start) - $i);
+	}
+    }
 
     md_init();
     my $init_num = md($start) + 1;
